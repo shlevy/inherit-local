@@ -25,42 +25,25 @@
 (put 'inherit-local--variables 'permanent-local t)
 
 ;;;###autoload
-(defvar-local inherit-local-nonempty-hook nil
-  "Hook run when the set of inherited variables becomes nonempty.
-It may be desirable to avoid hooking the relevant buffer creation
-functions unless the parent buffer really has any inheriting to do.")
-
-(put 'inherit-local-nonempty-hook 'permanent-local t)
-
-(defvar-local inherit-local-empty-hook nil
-  "Hook run when the set of inherited variables becomes empty.
-It may be desirable to stop hooking the relevant buffer creation
-functions when the parent buffer no longer has any inheriting to do.")
-
-(put 'inherit-local-empty-hook 'permanent-local t)
-
-;;;###autoload
 (defun inherit-local (variable)
   "Make VARIABLE (a symbol) inherited."
-  (puthash variable nil inherit-local--variables)
-  (when (eq (hash-table-count inherit-local--variables) 1)
-    (run-hooks 'inherit-local-nonempty-hook)))
+  (puthash variable nil inherit-local--variables))
 
 (defun inherit-local-uninherit (variable)
   "Uninherit VARIABLE (a symbol)."
-  (remhash variable inherit-local--variables)
-  (when (eq (hash-table-count inherit-local--variables) 0)
-    (run-hooks 'inherit-local-empty-hook)))
+  (remhash variable inherit-local--variables))
 
 (defun inherit-local-inherit-child (buffer)
-  "Inherit inherited variables in BUFFER."
+  "Inherit inherited variables in BUFFER.
+Returns 't' if there were any variables to inherit, 'nil' otherwise."
   (maphash
    (lambda (key ignored)
      (when (boundp key)
        (let ((val (symbol-value key)))
 	 (with-current-buffer buffer
 	   (set key val)))))
-   inherit-local--variables))
+   inherit-local--variables)
+  (not (eq (hash-table-count inherit-local--variables) 0)))
 
 ;;;###autoload
 (defmacro inherit-local-permanent (var value)
