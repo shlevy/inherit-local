@@ -4,7 +4,7 @@
 
 ;; Author: Shea Levy
 ;; URL: https://github.com/shlevy/inherit-local/tree-master/
-;; Version : 1.1
+;; Version : 1.1.1
 ;; Package-Requires: ((emacs "24.3"))
 
 ;;; Commentary:
@@ -69,6 +69,7 @@ Returns 't' if there were any variables to inherit, 'nil' otherwise."
      (when (boundp key)
        (let ((val (symbol-value key)))
 	 (with-current-buffer buffer
+	   (make-local-variable key)
 	   (set key val)))))
    inherit-local--variables)
   (not (eq (hash-table-count inherit-local--variables) 0)))
